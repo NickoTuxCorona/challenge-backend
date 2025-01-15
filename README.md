@@ -1,6 +1,6 @@
 # Parrot Order Management System
 
-A web application for managing customer orders built with React and Django.
+A web application for managing customer orders built with Django.
 
 ## Project Structure 
 
@@ -51,14 +51,12 @@ The application will be available at:
 
 ## Development
 
-### Frontend Development
-```bash
-cd frontend
-npm install
-npm start
-```
-
 ### Backend Development
+You can also develop using the Docker Compose file.
+
+If you want to install everything locally, you can do it by running the following commands:
+In this case you should have a postgres database running on your machine.
+
 ```bash
 cd backend
 python -m venv env

@@ -7,6 +7,11 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers.user_serializer import UserSerializer
 from .serializers.order_serializer import OrderCreateSerializer, OrderDetailSerializer
 from .models.order import Order
+
+from .models.order_item import OrderItem
+from django.db.models import Sum
+from datetime import datetime
+
 from rest_framework.pagination import PageNumberPagination
 
 @api_view(['POST'])
@@ -67,3 +72,31 @@ def get_recent_orders(request):
     paginated_orders = paginator.paginate_queryset(orders, request)
     serializer = OrderDetailSerializer(paginated_orders, many=True)
     return paginator.get_paginated_response(serializer.data) 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def get_sales_report(request):
+    fecha_ini = datetime.strptime(
+        request.data.get('fecha_inicio'),
+        '%d-%m-%Y'
+    )
+    fecha_fin = datetime.strptime(
+        request.data.get('fecha_fin'),
+        '%d-%m-%Y'
+    )
+    orderItems = (
+        OrderItem.objects.filter(
+            created_at__gte=fecha_ini,
+            created_at__lte=fecha_fin
+        )
+        .values('product_name')
+        .annotate(total=Sum('total_price'))
+        .order_by('total')
+    )
+
+    items = [item for item in orderItems][::-1]
+    
+    return Response(
+            items,
+            status=status.HTTP_200_OK
+        )
